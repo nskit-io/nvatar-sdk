@@ -403,13 +403,6 @@ POST /api/v1/sdk/connect
 
 ---
 
-## Design Document
-
-For the complete internal architecture (15 sections), see:
-**[SDK_ARCHITECTURE.md](https://github.com/nskit-io/nvatar-sdk/blob/main/SDK_ARCHITECTURE.md)**
-
----
-
 ## Related Projects
 
 | Project | Description |
@@ -422,7 +415,8 @@ For the complete internal architecture (15 sections), see:
 
 ## License
 
-Apache-2.0
+- **SDK code & examples**: MIT — free to use, modify, and distribute commercially
+- **NVatar platform architecture & design documents**: Proprietary — not included in this repository. Contact [nskit@nskit.io](mailto:nskit@nskit.io) for commercial licensing.
 
 ---
 
