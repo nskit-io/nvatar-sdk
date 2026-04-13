@@ -407,29 +407,31 @@ POST /api/v1/sdk/connect
 
 Runnable examples in the [`examples/`](examples/) directory:
 
-### Python — Server-side Patterns
+### Server-side Patterns (deploy inside NVatar server)
+
+These import internal modules (`app.sdk`, `app.service`) and must be placed in `app/sdk/patterns/` on the NVatar server.
 
 | File | Description |
 |------|-------------|
 | [`simple_pattern.py`](examples/python/simple_pattern.py) | Minimal BehaviorPattern — echo with avatar personality |
 | [`language_tutor_pattern.py`](examples/python/language_tutor_pattern.py) | Full ASSISTED mode — external API + Gemma wrap + franchise memory + proactive |
-| [`client_sdk.py`](examples/python/client_sdk.py) | External client — connect to NVatar from your service (REST + WebSocket) |
 
-### Node.js — Client Integration
+### Client Examples (standalone, no server modules needed)
+
+These use only public REST + WebSocket APIs and can run from anywhere.
 
 | File | Description |
 |------|-------------|
-| [`client-sdk.mjs`](examples/node/client-sdk.mjs) | Node.js/Bun client — avatar management + SDK session + chat |
+| [`client_sdk.py`](examples/python/client_sdk.py) | Python client — avatar management + SDK session + chat |
+| [`client-sdk.mjs`](examples/node/client-sdk.mjs) | Node.js/Bun client — same functionality in JavaScript |
 
 ```bash
 # Run Python client example
 pip install httpx websockets
 python examples/python/client_sdk.py
 
-# Run Node.js client example
+# Run Node.js client example (Node.js 18+ or Bun)
 node examples/node/client-sdk.mjs
-# or
-bun run examples/node/client-sdk.mjs
 ```
 
 ---

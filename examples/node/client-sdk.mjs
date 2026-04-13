@@ -31,6 +31,7 @@ class NVatarClient {
 
   async getAvatar(avatarId) {
     const res = await fetch(`${this.baseUrl}/api/v1/avatars/${avatarId}`);
+    if (!res.ok) throw new Error(`getAvatar failed: ${res.status}`);
     return res.json();
   }
 
@@ -43,6 +44,7 @@ class NVatarClient {
         speech_level: 'polite', language,
       }),
     });
+    if (!res.ok) throw new Error(`createAvatar failed: ${res.status}`);
     return res.json();
   }
 
@@ -57,6 +59,7 @@ class NVatarClient {
         save_franchise_memory: saveFranchiseMemory,
       }),
     });
+    if (!res.ok) throw new Error(`sdkConnect failed: ${res.status}`);
     return res.json();
   }
 
@@ -66,6 +69,7 @@ class NVatarClient {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ avatar_id: avatarId }),
     });
+    if (!res.ok) throw new Error(`sdkDisconnect failed: ${res.status}`);
     return res.json();
   }
 
@@ -78,7 +82,8 @@ class NVatarClient {
       const responses = [];
 
       ws.onmessage = (event) => {
-        const data = JSON.parse(event.data);
+        let data;
+        try { data = JSON.parse(event.data); } catch { return; }
         const text = data.text || data.message || '';
         if (text && onResponse) {
           onResponse(data.type, text);
@@ -117,7 +122,8 @@ async function main() {
 
   // 1. Get avatar info
   const avatar = await client.getAvatar(155);
-  console.log(`Avatar: ${avatar.response.name}`);
+  const avatarData = avatar.response || avatar;
+  console.log(`Avatar: ${avatarData.name || 'unknown'}`);
 
   // 2. Connect SDK
   const session = await client.sdkConnect(155, { saveFranchiseMemory: true });

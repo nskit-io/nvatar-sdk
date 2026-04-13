@@ -43,12 +43,14 @@ class NVatarClient:
                 "speech_level": kwargs.get("speech_level", "polite"),
                 "language": kwargs.get("language", "ko"),
             })
+            resp.raise_for_status()
             return resp.json()
 
     async def get_avatar(self, avatar_id: int) -> dict:
         """Get avatar details."""
         async with httpx.AsyncClient() as client:
             resp = await client.get(f"{self.base_url}/api/v1/avatars/{avatar_id}")
+            resp.raise_for_status()
             return resp.json()
 
     # --- SDK Session ---
@@ -60,6 +62,7 @@ class NVatarClient:
                 "avatar_id": avatar_id,
                 "save_franchise_memory": save_franchise_memory,
             })
+            resp.raise_for_status()
             return resp.json()
 
     async def sdk_disconnect(self, avatar_id: int) -> dict:
@@ -68,6 +71,7 @@ class NVatarClient:
             resp = await client.post(f"{self.base_url}/api/v1/sdk/disconnect", json={
                 "avatar_id": avatar_id,
             })
+            resp.raise_for_status()
             return resp.json()
 
     # --- Chat via WebSocket ---
@@ -97,7 +101,10 @@ class NVatarClient:
         while time.time() - start < timeout:
             try:
                 raw = await asyncio.wait_for(ws.recv(), timeout=2)
-                data = json.loads(raw)
+                try:
+                    data = json.loads(raw)
+                except json.JSONDecodeError:
+                    continue
                 msg_type = data.get("type", "")
                 text = data.get("text", data.get("message", ""))
                 if callback and text:
@@ -115,7 +122,8 @@ async def main():
 
     # 1. Get avatar
     avatar = await client.get_avatar(155)
-    print(f"Avatar: {avatar['response']['name']}")
+    avatar_data = avatar.get("response", avatar)
+    print(f"Avatar: {avatar_data.get('name', 'unknown')}")
 
     # 2. Connect SDK session
     session = await client.sdk_connect(155, save_franchise_memory=True)
