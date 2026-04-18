@@ -46,6 +46,7 @@ graph TB
         NC["NormalChat<br/>Pure Gemma"]
         CA["CodeAssist<br/>Relay to Claude"]
         LT["LanguageTutor<br/>External AI + Gemma wrap"]
+        PI["PeerInteraction<br/>Avatar↔Avatar autonomy"]
         FP["YourPattern<br/>???"]
     end
 
@@ -57,7 +58,7 @@ graph TB
 
     CR --> PR
     UP --> UPM
-    PR --> NC & CA & LT & FP
+    PR --> NC & CA & LT & PI & FP
     NC --> CM
     CA --> FM
     LT --> FM & CM
@@ -348,6 +349,68 @@ class LanguageTutorPattern(BehaviorPattern):
         if not state: return None
         return f"User is learning English. Level: {state['level']}. Last lesson: {state['topic']} ({state['score']}pts)."
 ```
+
+---
+
+## Example: Peer Interaction (Avatar↔Avatar Autonomy)
+
+When multiple avatars share a room, they can talk to each other autonomously
+— without any room "director" injecting scripted prompts. The client runs a
+single dispatcher (10s dice, 30% probability) that picks one occupant per tick
+as the next speaker, eliminating collisions. Each speaker generates their own
+opening line based on persona, memory, and intimacy with the addressed friend.
+
+Key characteristics:
+- `GemmaMode.PURE_CHAT` — pure self-driven speech
+- `MemoryPolicy.CORE_ONLY` — saved to per-relationship track (`avatar:{friend_id}`)
+- Direct invocation via `peer_request` ws message (registry routing bypassed)
+- Intimacy-aware tone: 5 levels from first-meeting (discovery questions OK) to
+  very-close (mostly callbacks, no new questions)
+- Master-AFK awareness: when the human user has been quiet for >3min, the
+  prompt shifts to "friends-only" framing
+- Single-dispatcher dice rules out multiple avatars speaking on the same tick
+
+```python
+class PeerInteractionPattern(BehaviorPattern):
+    name = "peer-interaction"
+    gemma_mode = GemmaMode.PURE_CHAT
+    memory_policy = MemoryPolicy.CORE_ONLY
+
+    async def should_activate(self, ctx):
+        return False  # bypass routing — invoked directly
+
+    async def handle_peer_request(self, ctx, friends, master_afk=False):
+        friend = random.choice(friends)
+        intimacy_hint = _intimacy_style_hint(ctx.avatar_id, friend["avatar_id"], lang)
+        # ... build per-language prompt, generate, forward to friend's ws
+```
+
+---
+
+## Multilingual Stability (ko / ja / en / zh)
+
+Each avatar has a `language` field that pins its base output language. Even
+when the user types in another language or asks the avatar to switch,
+the response stays in the base language — except for explicit session modes
+(language practice, role-play with a clear end condition).
+
+The runtime is built in three thin layers (no rule bloat in the prompt):
+
+1. **SessionState** — per-avatar in-memory state (`base_language`, `mode`,
+   `mode_target_lang`). `chat.py` runs cheap detectors on every user turn and
+   transitions state.
+2. **Dynamic directive** — `prompt_builder.build_lang_directive()` is a state
+   reader. Default mode injects a one-line base anchor; practice mode injects
+   the target-language directive with intent-based exit hints.
+3. **Output filter** — `lang_filter.correct_response()` runs `langdetect` on
+   the model's response and, if it drifted, rewrites via a Gemma mini-call
+   with system+user role split. The corrected text is what gets saved to
+   memory, creating a self-reinforcing loop: next turn the model sees its own
+   (corrected) history in the base language and naturally continues there.
+
+Tested across 35 scenarios (4 languages × 7 cases + multi-turn + variants);
+all pass. Practice-mode entry/exit detection works even on intent-only phrasing
+("이제 충분히 한 거 같아. 평소처럼 얘기하자" → exits without a literal "stop").
 
 ---
 
