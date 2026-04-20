@@ -180,13 +180,14 @@ Avatar
 
 ### Franchise Memory Schema
 
-```sql
-nv_franchise_memory
-├── pattern_name    "ekyss", "code-assist", "therapy"
-├── entry_type      "event", "state", "commitment"
-├── status          "success", "failed", "pending", "ongoing"
-├── relevance_score  Decays over time (event: -1/day, state: no decay)
-└── data            JSON (domain-specific)
+Each franchise-memory entry carries these attributes:
+
+```
+pattern_name      "ekyss", "code-assist", "therapy"
+entry_type        "event", "state", "commitment"
+status            "success", "failed", "pending", "ongoing"
+relevance_score   decays over time (event: -1/day, state: no decay)
+data              JSON (domain-specific)
 ```
 
 ### save_franchise_memory Flag
