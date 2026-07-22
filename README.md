@@ -409,8 +409,8 @@ The runtime is built in three thin layers (no rule bloat in the prompt):
    memory, creating a self-reinforcing loop: next turn the model sees its own
    (corrected) history in the base language and naturally continues there.
 
-Tested across 35 scenarios (4 languages × 7 cases + multi-turn + variants);
-all pass. Practice-mode entry/exit detection works even on intent-only phrasing
+Exercised across 35 internal scenarios (4 languages × 7 cases + multi-turn + variants).
+Practice-mode entry/exit detection works even on intent-only phrasing
 ("이제 충분히 한 거 같아. 평소처럼 얘기하자" → exits without a literal "stop").
 
 ---
