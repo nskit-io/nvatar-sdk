@@ -15,11 +15,14 @@ Requirements:
 """
 import asyncio
 import json
+import os
 import httpx
 import websockets
 
 
-NVATAR_URL = "https://nvatar.nskit.io"  # or localhost:54444
+# Required: your own (self-hosted) NVatar server, e.g. https://your-nvatar-server.example.com
+# There is no public hosted server. Put authentication in front of it before exposing it.
+NVATAR_URL = os.environ.get("NVATAR_URL", "")
 
 
 class NVatarClient:
@@ -118,7 +121,9 @@ class NVatarClient:
 # ---------------------------------------------------------------------------
 
 async def main():
-    client = NVatarClient("http://localhost:54444")
+    if not NVATAR_URL:
+        raise SystemExit("Set NVATAR_URL to your NVatar server (e.g. https://your-nvatar-server.example.com)")
+    client = NVatarClient(NVATAR_URL)
 
     # 1. Get avatar
     avatar = await client.get_avatar(155)

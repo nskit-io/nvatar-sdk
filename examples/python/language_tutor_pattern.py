@@ -8,7 +8,7 @@ Full example of an ASSISTED mode pattern:
 - Proactive reminders for daily commitment
 - Daily chat references learning history
 
-This is the reference implementation for the eKYSS integration model.
+This is a reference implementation for a language-learning partner integration.
 
 Usage:
   1. Implement your TutorService (replace the stub below)

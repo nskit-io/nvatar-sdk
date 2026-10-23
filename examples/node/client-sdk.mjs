@@ -5,7 +5,7 @@
  * Uses native fetch + WebSocket for zero dependencies.
  *
  * Usage:
- *   node client-sdk.mjs
+ *   NVATAR_URL=https://your-nvatar-server.example.com node client-sdk.mjs
  *   # or
  *   bun run client-sdk.mjs
  *
@@ -14,7 +14,13 @@
  *   or Bun (any version)
  */
 
-const NVATAR_URL = process.env.NVATAR_URL || 'http://localhost:54444';
+// Required: your own (self-hosted) NVatar server, e.g. https://your-nvatar-server.example.com
+// There is no public hosted server. Put authentication in front of it before exposing it.
+const NVATAR_URL = process.env.NVATAR_URL || '';
+if (!NVATAR_URL) {
+  console.error('Set NVATAR_URL to your NVatar server (e.g. https://your-nvatar-server.example.com)');
+  process.exit(1);
+}
 const WS_URL = NVATAR_URL.replace('https://', 'wss://').replace('http://', 'ws://');
 
 // ---------------------------------------------------------------------------

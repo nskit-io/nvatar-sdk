@@ -4,9 +4,11 @@
 
 NVatar SDK lets you create **BehaviorPatterns** that extend avatar capabilities while preserving their identity. Your avatar can be a code assistant, language tutor, therapist, or customer service agent — each behavior runs independently, and the avatar's personality stays intact.
 
-**[NVatar Demo](https://nskit-io.github.io/nvatar-demo/)** · **[Code Assist Example](https://github.com/nskit-io/nvatar-code-assist)** · [한국어](docs/README_KO.md)
+**[NVatar Demo](https://nskit-io.github.io/nvatar-demo/)** (temporarily offline) · **[Code Assist Example](https://github.com/nskit-io/nvatar-code-assist)**
 
 > ⚠️ **Preview** — SDK is functional but API may change. Currently powering Code Assist and internal test patterns.
+
+> 🔒 **Hosted server offline / self-hosting security** — The public NVatar demo server is currently offline (under maintenance), so there is no hosted endpoint to call. The HTTP/WebSocket APIs documented here do not include an authentication layer of their own. If you self-host, **put authentication in front of every endpoint** (e.g. an authenticating reverse proxy or API gateway), check on the server that the caller owns the avatar/session it addresses, and do not expose the server directly to the public internet.
 
 ---
 
@@ -183,7 +185,7 @@ Avatar
 Each franchise-memory entry carries these attributes:
 
 ```
-pattern_name      "ekyss", "code-assist", "therapy"
+pattern_name      "language-tutor", "code-assist", "therapy"
 entry_type        "event", "state", "commitment"
 status            "success", "failed", "pending", "ongoing"
 relevance_score   decays over time (event: -1/day, state: no decay)
@@ -206,7 +208,7 @@ class LanguageTutorPattern(BehaviorPattern):
         self._save_franchise_memory = True   # Learning history is valuable
 ```
 
-Users/partners can override at SDK connect time:
+Users/partners can override at SDK connect time (send this through your authenticated front layer — see the security note above):
 
 ```
 POST /api/v1/sdk/connect
@@ -465,6 +467,8 @@ POST /api/v1/sdk/connect
 | `character_wrap` | `true` | Wrap external results in character voice |
 | `save_franchise_memory` | pattern default | Override pattern's memory storage setting |
 
+> This endpoint has no built-in authentication. In a self-hosted deployment, require an authenticated caller and verify server-side that the caller owns `avatar_id` before connecting.
+
 ---
 
 ## Examples
@@ -482,7 +486,7 @@ These import internal modules (`app.sdk`, `app.service`) and must be placed in `
 
 ### Client Examples (standalone, no server modules needed)
 
-These use only public REST + WebSocket APIs and can run from anywhere.
+These use only the REST + WebSocket APIs and can run from anywhere that can reach your own NVatar server. Set `NVATAR_URL` to your server's address (there is no public hosted server).
 
 | File | Description |
 |------|-------------|
@@ -492,10 +496,10 @@ These use only public REST + WebSocket APIs and can run from anywhere.
 ```bash
 # Run Python client example
 pip install httpx websockets
-python examples/python/client_sdk.py
+NVATAR_URL=https://your-nvatar-server.example.com python examples/python/client_sdk.py
 
 # Run Node.js client example (Node.js 18+ or Bun)
-node examples/node/client-sdk.mjs
+NVATAR_URL=https://your-nvatar-server.example.com node examples/node/client-sdk.mjs
 ```
 
 ---
