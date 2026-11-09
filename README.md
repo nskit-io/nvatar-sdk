@@ -9,6 +9,10 @@ NVatar SDK lets you create **BehaviorPatterns** that extend avatar capabilities 
 > ⚠️ **Preview** — SDK is functional but API may change. Currently powering Code Assist and internal test patterns.
 
 > 🔒 **Hosted server offline / self-hosting security** — The public NVatar demo server is currently offline (under maintenance), so there is no hosted endpoint to call. The HTTP/WebSocket APIs documented here do not include an authentication layer of their own. If you self-host, **put authentication in front of every endpoint** (e.g. an authenticating reverse proxy or API gateway), check on the server that the caller owns the avatar/session it addresses, and do not expose the server directly to the public internet.
+>
+> - The hosted server is a **demo only, not a production endpoint**. Do not build integrations against it.
+> - **Integrators are responsible for** authentication, server-side ownership checks (`avatar_id`, session), and rate limiting. `/api/v1/sdk/connect` in particular accepts any `avatar_id` it is given; it does not verify ownership itself.
+> - If you enable CORS, **allow only your own front-end origin(s)** (an explicit allowlist such as `["https://app.example.com"]`), never `*`.
 
 ---
 
@@ -411,7 +415,7 @@ The runtime is built in three thin layers (no rule bloat in the prompt):
    memory, creating a self-reinforcing loop: next turn the model sees its own
    (corrected) history in the base language and naturally continues there.
 
-Exercised across 35 internal scenarios (4 languages × 7 cases + multi-turn + variants).
+Exercised against an internal scenario set (4 languages × 7 cases, plus multi-turn and variant cases). The results are not published, so treat this as a development check, not a benchmark.
 Practice-mode entry/exit detection works even on intent-only phrasing
 ("이제 충분히 한 거 같아. 평소처럼 얘기하자" → exits without a literal "stop").
 
@@ -467,7 +471,7 @@ POST /api/v1/sdk/connect
 | `character_wrap` | `true` | Wrap external results in character voice |
 | `save_franchise_memory` | pattern default | Override pattern's memory storage setting |
 
-> This endpoint has no built-in authentication. In a self-hosted deployment, require an authenticated caller and verify server-side that the caller owns `avatar_id` before connecting.
+> This endpoint has no built-in authentication and does **not** check that the caller owns `avatar_id`. In a self-hosted deployment, require an authenticated caller and verify server-side that the caller owns `avatar_id` before connecting.
 
 ---
 
@@ -521,4 +525,4 @@ NVATAR_URL=https://your-nvatar-server.example.com node examples/node/client-sdk.
 
 ---
 
-Built by [Neoulsoft](https://nskit.io) — AI-Native Framework
+Built by [Neoulsoft Inc.](https://nskit.io) — AI-Native Framework
