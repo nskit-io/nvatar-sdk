@@ -523,6 +523,8 @@ NVATAR_URL=https://your-nvatar-server.example.com node examples/node/client-sdk.
 - **SDK code & examples**: MIT — free to use, modify, and distribute commercially
 - **NVatar platform architecture & design documents**: Proprietary — not included in this repository. Contact [nskit@nskit.io](mailto:nskit@nskit.io) for commercial licensing.
 
+> This repository publishes the design pattern and reference material under the MIT License. The NSKit framework itself (runtime, scaffolding, checkers and operating standards) is proprietary to Neoulsoft Inc. and available under a separate commercial license.
+
 ---
 
 Built by [Neoulsoft Inc.](https://nskit.io) — AI-Native Framework
